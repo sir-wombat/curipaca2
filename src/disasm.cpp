@@ -6,7 +6,7 @@
 
 
 
-unsigned int buff_value(char* buff, uint8_t size=4, bool big_endian=false)
+unsigned int buff_value(unsigned char* buff, uint8_t size=4, bool big_endian=false)
 {
 	//precheck:
 	if( !(size==4 || size==2 || size==1) )
@@ -59,13 +59,19 @@ Disasm::Disasm(std::string infile_path, int offset, int end)
 
 		// read the bytes into the list:
 		infile.seekg(0L); // go to the start of the file
-		char inbuf[4];
+		unsigned char inbuf[4];
 		while(!infile.eof())
 		{
 			unsigned int address = offset_ + infile.tellg();
-			infile.read(inbuf ,4);
+			infile.read((char*)inbuf ,4);
 			unsigned int value = buff_value(inbuf);
-			Op* current_word = new PsOp(address, value);
+			//Op* current_word = new PsOp(address, value);
+			Op* current_word = new RlOp(address, inbuf);
+			if(current_word->get_size() == 0)
+			{
+				delete current_word;
+				current_word = new PsOp(address, value);
+			}
 			program_.insert(pos_++, current_word);
 		}
 		infile.close();

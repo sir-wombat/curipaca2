@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 //#include <iostream>
+#include <capstone/capstone.h>
 
 class Op
 {
@@ -29,10 +30,17 @@ inline std::ostream& operator<<(std::ostream& os, Op* op)
   return os;
 }
 
-//class RlOp : public Op
-//{
+class RlOp : public Op
+{
+public:
+	RlOp(unsigned long int address, const unsigned char* bytes);
 
-//};
+private:
+	cs_insn* csop_;
+
+	virtual std::string print(void)const;
+
+};
 
 class PsOp : public Op
 {
@@ -45,8 +53,6 @@ public:
 	~PsOp(void);
 
 	virtual unsigned int get_value(void);
-	virtual unsigned int get_address(void);
-	virtual unsigned int get_size(void);
 
 private:
 	unsigned int value_;
