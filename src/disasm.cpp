@@ -62,15 +62,24 @@ Disasm::Disasm(std::string infile_path, int offset, int end)
 		unsigned char inbuf[4];
 		while(!infile.eof())
 		{
+			// TODO:
+			// Mechanism to always feed the next four bytes to RlOp()
+			// and not skip any (if the last instruction was only 2 bytes long).
+			// TODO:
+			// Mechanism to turn known data bytes directly into PsOp Objects.
 			unsigned int address = offset_ + infile.tellg();
 			infile.read((char*)inbuf ,4);
 			unsigned int value = buff_value(inbuf);
-			//Op* current_word = new PsOp(address, value);
-			Op* current_word = new RlOp(address, inbuf);
+
+			//Op* current_word = new RlOp(address, inbuf);
+			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(address, inbuf);
+			//std::cout << "in Disasm()" << current_word << std::endl;
+
 			if(current_word->get_size() == 0)
 			{
-				delete current_word;
-				current_word = new PsOp(address, value);
+				// delete current_word; not needed anymore with shared_ptr
+				//current_word = new PsOp(address, value);
+				current_word = std::make_shared<PsOp>(address, value);
 			}
 			program_.insert(pos_++, current_word);
 		}
@@ -87,7 +96,7 @@ Disasm::~Disasm()
 {
 	while(!program_.empty())
 	{
-		delete program_.front();
+		// delete program_.front(); not needed anymore with shared_ptr
 		program_.pop_front();
 	}
 	// Just out of curiosity:

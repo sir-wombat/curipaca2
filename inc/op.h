@@ -3,8 +3,9 @@
 
 #include <string>
 #include <list>
-//#include <iostream>
 #include <capstone/capstone.h>
+
+#include <memory> // for std::shared_ptr
 
 class Op
 {
@@ -34,6 +35,7 @@ class RlOp : public Op
 {
 public:
 	RlOp(unsigned long int address, const unsigned char* bytes);
+	~RlOp(void);
 
 private:
 	cs_insn* csop_;
@@ -60,8 +62,8 @@ private:
 	virtual std::string print(void)const;
 };
 
-typedef std::list<Op*> Memlist;
-
+//typedef std::list<Op*> Memlist;
+typedef std::list<std::shared_ptr<Op>> Memlist;
 
 
 #endif // OP_H

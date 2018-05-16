@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip> // für std::setw
 
+
 Op::Op(void)
 {
 	size_ = 0;
@@ -22,6 +23,7 @@ std::string Op::print(void)const
 RlOp::RlOp(unsigned long int address,
 		const unsigned char* bytes)
 {
+	//std::cout << "RlOp() start...";
 	size_t size = 4;
 	address_ = address;
 	size_ = size;
@@ -66,15 +68,25 @@ RlOp::RlOp(unsigned long int address,
 		cs_free(csop_, count);
 	}
 	cs_close(&handle);
+	//std::cout << "end!" << std::endl;
 }
+
+RlOp::~RlOp(void)
+{
+	//std::cout << "~RlOp() was called!";
+}
+
 
 std::string RlOp::print(void)const
 {
+	//std::cout << "in RlOp::print csop_ = " << "0x" << std::hex
+	//<< std::setfill('0') << std::setw(8) << csop_ << std::endl;
 	std::string pstring;
 	std::stringstream ss;
-	ss <<  std::hex << std::setfill('0') << "0x"
-	<< std::setw(8) << address_<< "\t"
-	<< csop_->mnemonic << "\t" << csop_->op_str;
+	ss << "0x" << std::hex
+	<< std::setfill('0') << std::setw(8) << address_ << "  "
+	<< std::setfill(' ') << std::setw(14) << std::left << csop_->mnemonic
+	<< csop_->op_str;
 	pstring = ss.str();
 	return pstring;
 }
@@ -82,11 +94,12 @@ std::string RlOp::print(void)const
 
 PsOp::PsOp(unsigned int address, unsigned int value, unsigned int size, std::string comment)
 {
+	//std::cout << "PsOP() start...";
 	address_ = address;
 	value_ = value;
 	size_ = size;
 	comment_ = comment;
-	//std::cout << "PsOp() was called!";
+	//std::cout << "end!" << std::endl;
 }
 
 PsOp::PsOp(unsigned int address, unsigned int value):
@@ -107,9 +120,10 @@ std::string PsOp::print(void)const
 {
 	std::string pstring;
 	std::stringstream ss;
-	ss <<  std::hex << std::setfill('0') << "0x"
-	<< std::setw(8) << address_<< "\t.data\t" << "0x"
-	<< std::setw(8) << value_;
+	ss << "0x" << std::hex << std::setfill('0')
+	<< std::setw(8) << address_<< "  "
+	<< std::setfill(' ') << std::setw(14) << std::left <<".data"
+	<< "0x" << std::setfill('0') << std::setw(8) << value_;
 	pstring = ss.str();
 	return pstring;
 }
