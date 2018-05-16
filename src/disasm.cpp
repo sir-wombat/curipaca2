@@ -72,7 +72,7 @@ Disasm::Disasm(std::string infile_path, int offset, int end)
 			unsigned int value = buff_value(inbuf);
 
 			//Op* current_word = new RlOp(address, inbuf);
-			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(address, inbuf);
+			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(address, inbuf, 4);
 			//std::cout << "in Disasm()" << current_word << std::endl;
 
 			if(current_word->get_size() == 0)

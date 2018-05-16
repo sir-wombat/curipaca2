@@ -34,7 +34,7 @@ inline std::ostream& operator<<(std::ostream& os, Op* op)
 class RlOp : public Op
 {
 public:
-	RlOp(unsigned long int address, const unsigned char* bytes);
+	RlOp(unsigned long int address, const unsigned char* bytes, size_t size);
 	~RlOp(void);
 
 private:

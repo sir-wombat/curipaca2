@@ -21,21 +21,27 @@ std::string Op::print(void)const
 
 
 RlOp::RlOp(unsigned long int address,
-		const unsigned char* bytes)
+		const unsigned char* bytes, size_t size)
 {
 	//std::cout << "RlOp() start...";
-	size_t size = 4;
+	if(size == 0)
+	{
+		std::cerr << "ERROR: Called RlOp() with size = 0!" << std::endl;
+		exit(-1);
+	}
 	address_ = address;
 	size_ = size;
 	csop_ = 0; //TODO replace!!!
 	// TODO Error handling:
-	// What happens if size==0
-	// What happens if if capstone doesn't give back a valid instruction?
-	// Use 'exit -1;'
+	// Q: What happens if size==0?
+	// A: something bad happened. Use exit(-1);
+	// Q: What happens if if capstone doesn't give back a valid instruction?
+	// A: RlOp gets size_ = 0. Layers above
+	//    decide what to do with that.
 	csh handle; // Capstone Handler
 	if( cs_open(CS_ARCH_ARM, CS_MODE_THUMB, &handle) )
 	{
-		std::cout
+		std::cerr
 		<< "ERROR: Failed to initialize the Capstone Engine!"
 		<< std::endl;
 		exit(-1);
