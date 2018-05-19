@@ -10,8 +10,9 @@ Op::Op(void)
 	address_ = 0;
 }
 Op::~Op(void){}
-unsigned int Op::get_address(void){return address_;}
-unsigned int Op::get_size(void){return size_;}
+unsigned int Op::get_address(void) const {return address_;}
+unsigned int Op::get_size(void) const {return size_;}
+bool Op::lower_address(const Op& comp_op) const {return address_ < comp_op.get_address();}
 std::string Op::print(void)const
 {
 	std::cout << "Error: called Op::print()" << std::endl;
@@ -19,6 +20,14 @@ std::string Op::print(void)const
 	return ""; // never happens
 }
 
+bool Op::comp_addr(const Op& A, const Op& B)
+{
+	return A.get_address() < B.get_address();
+}
+bool Op::comp_addr_ptr(std::shared_ptr<Op> A, std::shared_ptr<Op> B)
+{
+	return comp_addr(*A, *B);
+}
 
 RlOp::RlOp(unsigned long int address,
 		const unsigned char* bytes, size_t size)

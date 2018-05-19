@@ -11,15 +11,15 @@ unsigned int buff_value(unsigned char* buff, uint8_t size=4, bool big_endian=fal
 	//precheck:
 	if( !(size==4 || size==2 || size==1) )
 	{
-		std::cout << "Error: called buff_value() with bad value for \"size\"!"
+		std::cerr << "ERROR: called buff_value() with bad value for \"size\"!"
 				<< std::endl;
-		exit(1);
+		exit(-1);
 	}
 	if(buff == 0)
 	{
-		std::cout << "Error: called buff_value() with a nullpointer!"
+		std::cerr << "ERROR: called buff_value() with a nullpointer!"
 				<< std::endl;
-		exit(1);
+		exit(-1);
 	}
 
 	//conversion:
@@ -36,7 +36,7 @@ unsigned int buff_value(unsigned char* buff, uint8_t size=4, bool big_endian=fal
 }
 
 
-Disasm::Disasm(std::string infile_path, int offset, int end)
+Disasm::Disasm(std::string infile_path, unsigned long offset, unsigned long end)
 {
 	infile_path_ = infile_path;
 	offset_ = offset;
@@ -52,44 +52,69 @@ Disasm::Disasm(std::string infile_path, int offset, int end)
 	}
 	else
 	{
+		//File is open. Get ready for reading it:
+		unsigned long read_addr = offset_;
+		unsigned char inbuf[4]; // read buffer
+
 		infile.seekg(0L, std::ios::end);
-		unsigned long count = infile.tellg();
-		std::cout << "The input file " << infile_path_ << " is " << count
+		unsigned long fsize = infile.tellg();
+		std::cout << "The input file " << infile_path_ << " is " << fsize
 				<< " bytes long." << std::endl;
+		if(end_ - offset_ != fsize)
+		{
+			std::cout << "WARNING: File is " << fsize
+			<< " bytes long but the address range is "
+			<< end-offset << " bytes long! ";
+			end_ = fsize + offset_;
+			std::cout << "Adjusted address range accordingly." << std::endl;
+		}
 
 		// read the bytes into the list:
-		infile.seekg(0L); // go to the start of the file
-		unsigned char inbuf[4];
-		while(!infile.eof())
+		infile.seekg(read_addr - offset_); // go to the start of the file
+
+		while( read_addr <= end_ - 4 )
 		{
 			// TODO:
-			// Mechanism to always feed the next four bytes to RlOp()
-			// and not skip any (if the last instruction was only 2 bytes long).
-			// TODO:
 			// Mechanism to turn known data bytes directly into PsOp Objects.
-			unsigned int address = offset_ + infile.tellg();
+			// TODO:
+			// Separate disassembly from disasm constructor.
+			// TODO:
+			// cover edge case with (read_addr == end_ - 2)
+			// TODO:
+			// Why does program_ need to be sorted? The Ops are put
+			// in there orderly...
+			// TODO:
+			// Turn Memlist / program_ into a separate class?
+			infile.seekg(read_addr - offset_);
 			infile.read((char*)inbuf ,4);
-			unsigned int value = buff_value(inbuf);
 
-			//Op* current_word = new RlOp(address, inbuf);
-			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(address, inbuf, 4);
+			//std::cout << "read_addr - offset_ = " << read_addr - offset_ << std::endl;
+
+			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(read_addr, inbuf, 4);
 			//std::cout << "in Disasm()" << current_word << std::endl;
-
 			if(current_word->get_size() == 0)
 			{
-				// delete current_word; not needed anymore with shared_ptr
-				//current_word = new PsOp(address, value);
-				current_word = std::make_shared<PsOp>(address, value);
+				unsigned int value = buff_value(inbuf);
+				current_word = std::make_shared<PsOp>(read_addr, value);
+				read_addr += 4;
+			}
+			else if(current_word->get_size() == 2) read_addr += 2;
+			else if(current_word->get_size() == 4) read_addr += 4;
+			else
+			{
+				std::cerr << "ERROR: current_word has a bad size!" << std::endl;
 			}
 			program_.insert(pos_++, current_word);
 		}
+		// sort program_
+		program_.sort(Op::comp_addr_ptr);
 		infile.close();
 		valid_ = true;
 	}
 }
 
 // This is called delegation. It's why we need C++11
-Disasm::Disasm(std::string infile_path, int offset):
+Disasm::Disasm(std::string infile_path, unsigned long offset):
 	Disasm::Disasm(infile_path, offset, 0){}
 
 Disasm::~Disasm()

@@ -13,9 +13,13 @@ public:
 	Op(void);
 	virtual ~Op(void);
 
-	virtual unsigned int get_address(void);
-	virtual unsigned int get_size(void);
+	virtual unsigned int get_address(void)const;
+	virtual unsigned int get_size(void)const;
 	friend std::ostream& operator<<(std::ostream&, Op*);
+	bool lower_address(const Op&) const;
+
+	static bool comp_addr(const Op&, const Op&);
+	static bool comp_addr_ptr(std::shared_ptr<Op>, std::shared_ptr<Op>);
 
 protected:
 	unsigned int address_;

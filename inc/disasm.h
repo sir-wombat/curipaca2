@@ -16,13 +16,13 @@
 
 class Disasm
 {
-	public:Disasm(std::string infile_path, int offset);
-	public:Disasm(std::string infile_path, int offset, int end);
+	public:Disasm(std::string infile_path, unsigned long offset);
+	public:Disasm(std::string infile_path, unsigned long offset, unsigned long end);
 	public:~Disasm();
 
 	private:std::string infile_path_;
-	private:unsigned int offset_;
-	private:unsigned int end_;
+	private:unsigned long offset_;
+	private:unsigned long end_;
 	private:Memlist program_;
 	private:Memlist::iterator pos_;
 	private:bool valid_;
