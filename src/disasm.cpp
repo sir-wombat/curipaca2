@@ -81,9 +81,6 @@ Disasm::Disasm(std::string infile_path, unsigned long offset, unsigned long end)
 			// TODO:
 			// cover edge case with (read_addr == end_ - 2)
 			// TODO:
-			// Why does program_ need to be sorted? The Ops are put
-			// in there orderly...
-			// TODO:
 			// Turn Memlist / program_ into a separate class?
 			infile.seekg(read_addr - offset_);
 			infile.read((char*)inbuf ,4);
@@ -104,10 +101,13 @@ Disasm::Disasm(std::string infile_path, unsigned long offset, unsigned long end)
 			{
 				std::cerr << "ERROR: current_word has a bad size!" << std::endl;
 			}
-			program_.insert(pos_++, current_word);
+			pos_ = program_.end();
+			program_.insert(pos_, current_word);
 		}
-		// sort program_
-		program_.sort(Op::comp_addr_ptr);
+
+		// program_.sort(Op::comp_addr_ptr);
+		// not needed when everything is appended at the back
+
 		infile.close();
 		valid_ = true;
 	}
