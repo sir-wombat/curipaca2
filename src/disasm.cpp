@@ -182,77 +182,9 @@ void Disasm::disassemble(void)
 		}
 		Memlist::iterator pos = program_.end();
 		program_.insert(pos, current_word);
-	}
-	/*
-	std::ifstream infile;
-	infile.open(infile_path_, std::ios::in | std::ios::binary);
-	if(infile.fail() == 1)
-	{
-		std::cout << "Error: failed to open " << infile_path_ << std::endl;
-	}
-	else
-	{
-		//File is open. Get ready for reading it:
-		unsigned int read_addr = offset_;
-		unsigned char inbuf[4]; // read buffer
-
-		infile.seekg(0L, std::ios::end);
-		unsigned int fsize = infile.tellg();
-		std::cout << "The input file " << infile_path_ << " is " << fsize
-				<< " bytes int." << std::endl;
-		if(end_ - offset_ != fsize)
-		{
-			std::cout << "WARNING: File is " << fsize
-			<< " bytes int but the address range is "
-			<< end_-offset_ << " bytes long! ";
-			end_ = fsize + offset_;
-			std::cout << "Adjusted address range accordingly." << std::endl;
-		}
-
-		// read the bytes into the list:
-		infile.seekg(read_addr - offset_); // go to the start of the file
-
-		while( read_addr <= end_ - 4 )
-		{
-			// TODO:
-			// Mechanism to turn known data bytes (i.e. vectors) directly into PsOp Objects.
-			// TODO:
-			// Separate disassembly from disasm constructor.
-			// TODO:
-			// cover edge case with (read_addr == end_ - 2)
-			// TODO:
-			// Turn Memlist / program_ into a separate class?
-			// TODO:
-			// create a class for file handling and read operations
-			infile.seekg(read_addr - offset_);
-			infile.read((char*)inbuf ,4);
-
-			//std::cout << "read_addr - offset_ = " << read_addr - offset_ << std::endl;
-
-			std::shared_ptr<Op> current_word = std::make_shared<RlOp>(read_addr, inbuf, 4);
-			//std::cout << "in Disasm()" << current_word << std::endl;
-			if(current_word->get_size() == 0)
-			{
-				unsigned int value = buff_value(inbuf);
-				current_word = std::make_shared<PsOp>(read_addr, value);
-				read_addr += 4;
-			}
-			else if(current_word->get_size() == 2) read_addr += 2;
-			else if(current_word->get_size() == 4) read_addr += 4;
-			else
-			{
-				std::cerr << "ERROR: current_word has a bad size!" << std::endl;
-			}
-			Memlist::iterator pos = program_.end();
-			program_.insert(pos, current_word);
-		}
-
 		// program_.sort(Op::comp_addr_ptr);
 		// not needed when everything is appended at the back
-
-		infile.close();
-
-	}*/
+	}
 }
 
 int Disasm::write_disasm()
