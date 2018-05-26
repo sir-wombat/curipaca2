@@ -12,17 +12,18 @@
 
 class Prut
 {
-	public:Prut(std::string infile_path, int offset);
-	public:Prut(std::string infile_path, int offset, int end);
-	public:~Prut();
+public:
+	Prut(std::string infile_path, int offset);
+	Prut(std::string infile_path, int offset, int end);
+	~Prut();
+	void disassemble();
 
-	private:std::string infile_path_;
-	private:unsigned int offset_;
-	private:unsigned int end_;
+private:
+	std::string infile_path_;
+	unsigned int offset_;
+	unsigned int end_;
 
-	private:Disasm* disassembly_;
-
-	public:int disassemble();
+	Disasm* disassembly_;
 };
 
 

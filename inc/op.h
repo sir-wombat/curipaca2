@@ -51,22 +51,20 @@ private:
 class PsOp : public Op
 {
 public:
-	PsOp(unsigned int address, unsigned int value, unsigned int size,
+	PsOp(unsigned int address, int value, unsigned int size,
 			std::string comment);
-	PsOp(unsigned int address, unsigned int value);
+	PsOp(unsigned int address, int value);
 	PsOp();
-
 	~PsOp(void);
 
 	virtual unsigned int get_value(void);
 
 private:
-	unsigned int value_;
+	int value_;
 	std::string comment_;
 	virtual std::string print(void)const;
 };
 
-//typedef std::list<Op*> Memlist;
 typedef std::list<std::shared_ptr<Op>> Memlist;
 
 

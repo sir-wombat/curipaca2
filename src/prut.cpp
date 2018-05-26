@@ -8,32 +8,23 @@ Prut::Prut(std::string infile_path, int offset, int end)
 	end_ = end;
 
 	disassembly_ = 0;
+	std::cout << "Prut() was called!" << std::endl;
 }
 
 Prut::Prut(std::string infile_path, int offset):
-		Prut(infile_path, offset, 0xffffffff){}
+		Prut(infile_path, offset, 0x09000000){}
 
 Prut::~Prut()
 {
-	if(disassembly_ != 0)
-	{
-		delete disassembly_;
-	}
-
-	// Just out of curiosity:
+	if(disassembly_ != 0) delete disassembly_;
 	std::cout << "~Prut() was called!" << std::endl;
 }
 
-int Prut::disassemble()
+void Prut::disassemble()
 {
 	disassembly_ = new Disasm(infile_path_, offset_, end_);
-	if (disassembly_->is_valid())
-	{
-		disassembly_->write_disasm();
-		return 0;
-	}
-	else
-	{
-		return -1;
-	}
+	disassembly_->find_vectors();
+	disassembly_->disassemble();
+	disassembly_->write_disasm();
+	return;
 }

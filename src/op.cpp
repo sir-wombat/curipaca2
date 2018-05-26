@@ -107,7 +107,7 @@ std::string RlOp::print(void)const
 }
 
 
-PsOp::PsOp(unsigned int address, unsigned int value, unsigned int size, std::string comment)
+PsOp::PsOp(unsigned int address, int value, unsigned int size, std::string comment)
 {
 	//std::cout << "PsOP() start...";
 	address_ = address;
@@ -117,7 +117,7 @@ PsOp::PsOp(unsigned int address, unsigned int value, unsigned int size, std::str
 	//std::cout << "end!" << std::endl;
 }
 
-PsOp::PsOp(unsigned int address, unsigned int value):
+PsOp::PsOp(unsigned int address, int value):
 	PsOp::PsOp(address, value, 4, ".data"){}
 
 PsOp::PsOp():

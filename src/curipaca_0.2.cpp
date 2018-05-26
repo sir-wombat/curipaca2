@@ -39,24 +39,30 @@ int main(void)
 	*/
 
 	// Testreihen/demsys-O3.bin
-	Prut testfall01("Testreihen/demsys-O3.bin", 0x08000000);
-	if(!testfall01.disassemble())
+	bool worked = false;
+	try
 	{
+		Prut testfall01("Testreihen/demsys-O3.bin", 0x08000000);
+		testfall01.disassemble();
+		worked = true;
 		std::cout << "Dissassembly worked." << std::endl;
 	}
-	else
+	catch(NoFileException& e)
 	{
 		std::cout << "Disassembly failed. Trying something else..." << std::endl;
-		Prut testfall02("../Testreihen/demsys-O3.bin", 0x08000000);
-		if(!testfall02.disassemble())
+	}
+	if(!worked)
+	{
+		try
 		{
+			Prut testfall02("../Testreihen/demsys-O3.bin", 0x08000000);
+			testfall02.disassemble();
 			std::cout << "now it worked" << std::endl;
 		}
-		else
+		catch(NoFileException& e)
 		{
 			std::cout << "Failed, too. Giving up now." << std::endl;
 		}
 	}
-
     return 0;
 }
