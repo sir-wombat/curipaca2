@@ -137,8 +137,8 @@ std::string PsOp::print(void)const
 	std::stringstream ss;
 	ss << "0x" << std::hex << std::setfill('0')
 	<< std::setw(8) << address_<< "  "
-	<< std::setfill(' ') << std::setw(14) << std::left <<".data"
-	<< "0x" << std::setfill('0') << std::setw(8) << value_;
+	<< std::setfill(' ') << std::setw(14) << std::left << comment_
+	<< std::right << "0x" << std::setfill('0') << std::setw(8) << value_;
 	pstring = ss.str();
 	return pstring;
 }

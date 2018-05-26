@@ -3,6 +3,7 @@
 #endif
 
 #include <disasm.h>
+#include <algorithm> // for std::find
 
 
 
@@ -165,20 +166,33 @@ void Disasm::disassemble(void)
 		// TODO:
 		// Turn Memlist / program_ into a separate class?
 
-		binfile_->read_raw(read_addr, buf, 4);
-		std::shared_ptr<Op> current_word = std::make_shared<RlOp>(read_addr, (unsigned char*)buf, 4);
-		//std::cout << "in Disasm()" << current_word << std::endl;
-		if(current_word->get_size() == 0)
+		std::shared_ptr<Op> current_word = 0;
+
+		//if(addr in psop list)
+		if( std::find(vectors_.begin(), vectors_.end(), read_addr) != vectors_.end() )
 		{
 			int value = binfile_->read_int(read_addr, 4);
-			current_word = std::make_shared<PsOp>(read_addr, value);
+			current_word = std::make_shared<PsOp>(read_addr, value, 4, ".vector");
 			read_addr += 4;
 		}
-		else if(current_word->get_size() == 2) read_addr += 2;
-		else if(current_word->get_size() == 4) read_addr += 4;
+		//else if(addr in word list, halfword list, ...)
 		else
 		{
-			std::cerr << "ERROR: current_word has a bad size!" << std::endl;
+			binfile_->read_raw(read_addr, buf, 4);
+			current_word = std::make_shared<RlOp>(read_addr, (unsigned char*)buf, 4);
+			//std::cout << "in Disasm()" << current_word << std::endl;
+			if(current_word->get_size() == 0)
+			{
+				int value = binfile_->read_int(read_addr, 4);
+				current_word = std::make_shared<PsOp>(read_addr, value);
+				read_addr += 4;
+			}
+			else if(current_word->get_size() == 2) read_addr += 2;
+			else if(current_word->get_size() == 4) read_addr += 4;
+			else
+			{
+				std::cerr << "ERROR: current_word has a bad size!" << std::endl;
+			}
 		}
 		Memlist::iterator pos = program_.end();
 		program_.insert(pos, current_word);
