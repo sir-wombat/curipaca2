@@ -160,12 +160,12 @@ void Disasm::disassemble(void)
 	while( read_addr <= end_ - 4 )
 	{
 		// TODO:
-		// Mechanism to turn known data bytes (i.e. vectors) directly into PsOp Objects.
-		// TODO:
 		// cover edge case with (read_addr == end_ - 2)
 		// TODO:
 		// Turn Memlist / program_ into a separate class?
-
+		// TODO:
+		// Turn vectors_ words_ etc. into a std::map with
+		// an enum for the data types
 		std::shared_ptr<Op> current_word = 0;
 
 		//if(addr in psop list)
