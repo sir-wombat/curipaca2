@@ -3,16 +3,40 @@
 #include <sstream>
 #include <iomanip> // für std::setw
 
-
+///////////////////////////////////////////////////////////////////////////////
 Op::Op(void)
 {
 	size_ = 0;
 	address_ = 0;
 }
+
 Op::~Op(void){}
-unsigned int Op::get_address(void) const {return address_;}
-unsigned int Op::get_size(void) const {return size_;}
-bool Op::lower_address(const Op& comp_op) const {return address_ < comp_op.get_address();}
+
+unsigned int Op::get_address(void) const
+{
+	return address_;
+}
+
+unsigned int Op::get_size(void) const
+{
+	return size_;
+}
+
+bool Op::lower_address(const Op& comp_op) const
+{
+	return address_ < comp_op.get_address();
+}
+
+bool Op::comp_addr(const Op& A, const Op& B)
+{
+	return A.get_address() < B.get_address();
+}
+
+bool Op::comp_addr_ptr(std::shared_ptr<Op> A, std::shared_ptr<Op> B)
+{
+	return comp_addr(*A, *B);
+}
+
 std::string Op::print(void)const
 {
 	std::cout << "Error: called Op::print()" << std::endl;
@@ -20,15 +44,7 @@ std::string Op::print(void)const
 	return ""; // never happens
 }
 
-bool Op::comp_addr(const Op& A, const Op& B)
-{
-	return A.get_address() < B.get_address();
-}
-bool Op::comp_addr_ptr(std::shared_ptr<Op> A, std::shared_ptr<Op> B)
-{
-	return comp_addr(*A, *B);
-}
-
+///////////////////////////////////////////////////////////////////////////////
 RlOp::RlOp(unsigned long int address,
 		const unsigned char* bytes, size_t size)
 {
@@ -84,13 +100,19 @@ RlOp::RlOp(unsigned long int address,
 	}
 	cs_close(&handle);
 	//std::cout << "end!" << std::endl;
+	global_op_count++;
 }
 
 RlOp::~RlOp(void)
 {
 	//std::cout << "~RlOp() was called!";
+	global_op_count--;
 }
 
+const cs_insn* RlOp::get_csop(void)
+{
+	return csop_;
+}
 
 std::string RlOp::print(void)const
 {
@@ -106,8 +128,8 @@ std::string RlOp::print(void)const
 	return pstring;
 }
 
-
-PsOp::PsOp(unsigned int address, int value, unsigned int size, std::string comment)
+///////////////////////////////////////////////////////////////////////////////
+PsOp::PsOp(unsigned int address, unsigned int value, unsigned int size, std::string comment)
 {
 	//std::cout << "PsOP() start...";
 	address_ = address;
@@ -115,6 +137,7 @@ PsOp::PsOp(unsigned int address, int value, unsigned int size, std::string comme
 	size_ = size;
 	comment_ = comment;
 	//std::cout << "end!" << std::endl;
+	global_op_count++;
 }
 
 PsOp::PsOp(unsigned int address, int value):
@@ -126,6 +149,7 @@ PsOp::PsOp():
 PsOp::~PsOp(void)
 {
 	//std::cout << "~PsOp() was called!";
+	global_op_count--;
 }
 
 
@@ -143,4 +167,70 @@ std::string PsOp::print(void)const
 	return pstring;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+bool equiv_rlops(std::shared_ptr<RlOp> op1, std::shared_ptr<RlOp> op2)
+{
+	if(op1->get_address() == op2->get_address())
+	{
+		const cs_insn* csop1 = op1->get_csop();
+		const cs_insn* csop2 = op2->get_csop();
+		if(csop1->size == csop2->size)
+		{
+			unsigned int size = csop1->size;
+			bool equal = true;
+			for(unsigned int i=0; i<size; i++)
+			{
+				if(csop1->bytes[i] != csop2->bytes[i]) equal = false;
+			}
+			//std::cout << "R";
+			return equal;
+		}
+	}
+	//std::cout << "r";
+	return false;
+}
+
+bool equiv_psops(std::shared_ptr<PsOp> op1, std::shared_ptr<PsOp> op2)
+{
+	// easy: address and value need to be equal, to return true
+	if(op1->get_address() == op2->get_address())
+	{
+		if(op1->get_value() == op2->get_value())
+		{
+			//std::cout << "P";
+			return true;
+		}
+	}
+	//std::cout << "p";
+	return false;
+}
+
+bool equiv_ops(std::shared_ptr<Op> op1, std::shared_ptr<Op> op2)
+{
+	if( op1->real_op() && op2->real_op() )
+	{
+		if( equiv_rlops(std::static_pointer_cast<RlOp>(op1), std::static_pointer_cast<RlOp>(op2)) )return true;
+		else return false;
+	}
+	else if( !(op1->real_op()) && !(op2->real_op()) )
+	{
+		if( equiv_psops(std::static_pointer_cast<PsOp>(op1), std::static_pointer_cast<PsOp>(op2)) )return true;
+		else return false;
+	}
+	//std::cout << "e";
+	return false;
+}
+
+// TODO: I should somehow guarantee that this comparison doesn't modify the
+// compared lists. Maybe through const or something.
+bool equiv_memlists(Memlist& liste1, Memlist& liste2)
+{
+	Memlist::iterator it1 = liste1.begin();
+	Memlist::iterator it2 = liste2.begin();
+	while( (it1 != liste1.end()) and (it1 != liste2.end()) )
+	{
+		if(not equiv_ops(*it1++, *it2++)) return false;
+	}
+	return true;
+}
 

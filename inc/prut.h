@@ -17,6 +17,7 @@ public:
 	Prut(std::string infile_path, int offset, int end);
 	~Prut();
 	void disassemble();
+	void write(std::string outfile_path);
 
 private:
 	std::string infile_path_;

@@ -11,6 +11,7 @@
 #include <fstream>
 #include "op.h"
 #include <vector> // bytearrays for Binfile::read_raw()
+#include <unordered_map>
 
 typedef std::list<unsigned int> AddrList;
 typedef struct Memranges
@@ -20,6 +21,7 @@ typedef struct Memranges
 	unsigned int ram_start;
 	unsigned int ram_end;
 }Memranges;
+typedef std::unordered_map<unsigned int, std::shared_ptr<PsOp>> DataMap;
 
 struct NoFileException : public std::exception {
 	// use catch(NoFileExcetpion& e){...} to catch this exception type.
@@ -46,8 +48,8 @@ public:
 	Binfile(std::string infile_path, unsigned int offset, unsigned int end); // open file
 	~Binfile(); // close file
 	void read_raw(unsigned int address, char* buf, unsigned int size);
-	int read_int(unsigned int address, unsigned int size);
-	int read_int(unsigned int address);
+	unsigned int read_int(unsigned int address, unsigned int size);
+	unsigned int read_int(unsigned int address);
 	unsigned int get_end(void);
 
 private:
@@ -69,16 +71,22 @@ public:
 	~Disasm();
 
 	void disassemble(void);
-	void find_vectors(void);
-	int write_disasm();
+	int print_disasm();
+	int write_disasm(std::string outfile_path);
 
 private:
 	Binfile* binfile_;
 	unsigned int offset_;
 	unsigned int end_;
 	Memlist program_;
-	AddrList vectors_;
+	//AddrList vectors_;
 	Memranges ranges_;
+	DataMap known_data_;
+
+	DataMap find_vectors(void);
+	std::shared_ptr<Op> parse_address(unsigned int address, unsigned short length);
+	int dis_iter(void);
+	void search_data(void);
 };
 
 

@@ -8,7 +8,7 @@ Prut::Prut(std::string infile_path, int offset, int end)
 	end_ = end;
 
 	disassembly_ = 0;
-	std::cout << "Prut() was called!" << std::endl;
+	//std::cout << "Prut() was called!" << std::endl;
 }
 
 Prut::Prut(std::string infile_path, int offset):
@@ -17,14 +17,19 @@ Prut::Prut(std::string infile_path, int offset):
 Prut::~Prut()
 {
 	if(disassembly_ != 0) delete disassembly_;
-	std::cout << "~Prut() was called!" << std::endl;
+	//std::cout << "~Prut() was called!" << std::endl;
 }
 
 void Prut::disassemble()
 {
 	disassembly_ = new Disasm(infile_path_, offset_, end_);
-	disassembly_->find_vectors();
 	disassembly_->disassemble();
-	disassembly_->write_disasm();
+	//disassembly_->print_disasm();
+	return;
+}
+
+void Prut::write(std::string outfile_path)
+{
+	disassembly_->write_disasm(outfile_path);
 	return;
 }
