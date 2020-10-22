@@ -1,3 +1,9 @@
 Debug/
 Testreihen/
 Testordner/
+.settings/
+.cproject
+.project
+*.s
+*.o
+*.tar
